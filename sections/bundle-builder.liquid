@@ -1,3 +1,7 @@
+{% liquid
+  assign bundle_discount = section.settings.bundle_discount
+%}
+
 {{ 'bundle-builder.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'bundle-builder.js' | asset_url }}" defer></script>
 
@@ -5,61 +9,145 @@
   id="BundleBuilder-{{ section.id }}"
   class="bundle-builder color-{{ section.settings.color_scheme }}"
   data-section-id="{{ section.id }}"
-  data-discount="{{ section.settings.bundle_discount }}"
+  data-discount="{{ bundle_discount }}"
 >
   <div class="page-width">
 
-    {% if section.settings.heading != blank %}
+    {% if section.settings.heading != blank or section.settings.description != blank %}
       <header class="bundle-builder__header">
-        <h2 class="bundle-builder__title">{{ section.settings.heading }}</h2>
+
+        {% if section.settings.heading != blank %}
+          <h2 class="bundle-builder__title">
+            {{ section.settings.heading }}
+          </h2>
+        {% endif %}
 
         {% if section.settings.description != blank %}
           <div class="bundle-builder__description rte">
             {{ section.settings.description }}
           </div>
         {% endif %}
+
       </header>
     {% endif %}
 
-    <div class="bundle-builder__products">
-      {% for block in section.blocks %}
-        {% assign bundle_product = block.settings.product %}
+    <div class="bundle-builder__layout">
 
-        {% if bundle_product != blank %}
-          {% render 'bundle-product-card',
-            product: bundle_product,
-            block: block
-          %}
-        {% endif %}
-      {% endfor %}
-    </div>
-
-    <aside class="bundle-builder__summary">
-      <div class="bundle-builder__row">
-        <span>{{ 'Subtotal' }}</span>
-        <span data-bundle-subtotal>{{ 0 | money }}</span>
-      </div>
-
-      <div class="bundle-builder__row">
-        <span>Discount ({{ section.settings.bundle_discount }}%)</span>
-        <span data-bundle-discount>{{ 0 | money }}</span>
-      </div>
-
-      <div class="bundle-builder__row bundle-builder__row--total">
-        <strong>Total</strong>
-        <strong data-bundle-total>{{ 0 | money }}</strong>
-      </div>
-
-      <button
-        type="button"
-        class="button button--primary bundle-builder__button"
-        data-add-bundle
+      <div
+        class="bundle-builder__products"
+        role="list"
       >
-        {{ section.settings.button_label }}
-      </button>
 
-      <p class="bundle-builder__message" data-bundle-message hidden></p>
-    </aside>
+        {% for block in section.blocks %}
+
+          {% if block.type == 'product' %}
+
+            {% assign bundle_product = block.settings.product %}
+
+            {% if bundle_product != blank %}
+
+              <div
+                class="bundle-builder__item"
+                role="listitem"
+                {{ block.shopify_attributes }}
+              >
+
+                {% render 'bundle-product-card',
+                  product: bundle_product,
+                  block: block
+                %}
+
+              </div>
+
+            {% endif %}
+
+          {% endif %}
+
+        {% endfor %}
+
+      </div>
+
+      <aside
+        class="bundle-builder__summary"
+        aria-labelledby="BundleSummary-{{ section.id }}"
+      >
+
+        <h3
+          id="BundleSummary-{{ section.id }}"
+          class="bundle-builder__summary-title"
+        >
+          Bundle Summary
+        </h3>
+
+        <div class="bundle-builder__summary-body">
+
+          <div class="bundle-builder__row">
+
+            <span>
+              Items
+            </span>
+
+            <span data-bundle-items>
+              {{ section.blocks.size }}
+            </span>
+
+          </div>
+
+          <div class="bundle-builder__row">
+
+            <span>
+              Subtotal
+            </span>
+
+            <span data-bundle-subtotal>
+              {{ 0 | money }}
+            </span>
+
+          </div>
+
+          <div class="bundle-builder__row">
+
+            <span>
+              Discount
+            </span>
+
+            <span data-bundle-discount>
+              {{ 0 | money }}
+            </span>
+
+          </div>
+
+          <div class="bundle-builder__row bundle-builder__row--total">
+
+            <strong>Total</strong>
+
+            <strong data-bundle-total>
+              {{ 0 | money }}
+            </strong>
+
+          </div>
+
+        </div>
+
+        <button
+          type="button"
+          class="button button--primary bundle-builder__button"
+          data-add-bundle
+        >
+          {{ section.settings.button_label }}
+        </button>
+
+        <p
+          class="bundle-builder__message"
+          data-bundle-message
+          hidden
+          role="status"
+          aria-live="polite"
+        ></p>
+
+      </aside>
+
+    </div>
 
   </div>
 </section>
@@ -80,12 +168,12 @@
       "type": "richtext",
       "id": "description",
       "label": "Description",
-      "default": "<p>Select your favorite products and add them to your cart in one click.</p>"
+      "default": "<p>Select your favorite products and purchase them together.</p>"
     },
     {
       "type": "range",
       "id": "bundle_discount",
-      "label": "Bundle Discount (%)",
+      "label": "Bundle discount (%)",
       "min": 0,
       "max": 50,
       "step": 5,
@@ -94,26 +182,26 @@
     {
       "type": "text",
       "id": "button_label",
-      "label": "Button Label",
+      "label": "Button label",
       "default": "Add Bundle to Cart"
     },
     {
       "type": "color_scheme",
       "id": "color_scheme",
-      "label": "Color Scheme",
-      "default": "background-1"
+      "label": "Color scheme",
+      "default": "scheme-1"
     }
   ],
   "blocks": [
     {
       "type": "product",
-      "name": "Bundle Product",
+      "name": "Product",
       "limit": 6,
       "settings": [
         {
           "type": "product",
           "id": "product",
-          "label": "Product"
+          "label": "Select product"
         }
       ]
     }
@@ -122,9 +210,15 @@
     {
       "name": "Bundle Builder",
       "blocks": [
-        { "type": "product" },
-        { "type": "product" },
-        { "type": "product" }
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        }
       ]
     }
   ]
