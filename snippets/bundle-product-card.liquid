@@ -10,9 +10,7 @@
 >
 
   <div class="bundle-product__image">
-
     {% if product.featured_image %}
-
       {{
         product.featured_image
         | image_url: width: 700
@@ -22,13 +20,9 @@
           sizes: '(min-width: 990px) 220px, 100vw',
           alt: product.featured_image.alt
       }}
-
     {% else %}
-
       {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
-
     {% endif %}
-
   </div>
 
   <div class="bundle-product__content">
@@ -40,9 +34,7 @@
     </h3>
 
     {% if product.vendor != blank %}
-      <p class="bundle-product__vendor">
-        {{ product.vendor }}
-      </p>
+      <p class="bundle-product__vendor">{{ product.vendor }}</p>
     {% endif %}
 
     {% if product.has_only_default_variant %}
@@ -62,10 +54,7 @@
 
     {% else %}
 
-      <label
-        class="visually-hidden"
-        for="BundleVariant-{{ block.id }}"
-      >
+      <label class="visually-hidden" for="BundleVariant-{{ block.id }}">
         Variant
       </label>
 
@@ -74,60 +63,33 @@
         class="bundle-product__variants"
         data-variant-select
       >
-
         {% for variant in product.variants %}
-
           <option
             value="{{ variant.id }}"
             data-price="{{ variant.price }}"
             data-available="{{ variant.available }}"
-            {% if variant.id == current_variant.id %}
-              selected
-            {% endif %}
+            {% if variant.id == current_variant.id %}selected{% endif %}
           >
-
             {{ variant.title }}
-
-            {% unless variant.available %}
-              — Sold Out
-            {% endunless %}
-
+            {% unless variant.available %} — Sold Out{% endunless %}
           </option>
-
         {% endfor %}
-
       </select>
 
-      <div
-        class="bundle-product__price"
-        data-price-display
-      >
+      <div class="bundle-product__price" data-price-display>
         {{ current_variant.price | money }}
       </div>
 
     {% endif %}
 
-    <div
-      class="bundle-product__inventory"
-      data-inventory-message
-    >
-
+    <div class="bundle-product__inventory" data-inventory-message>
       {% if current_variant.available %}
-        <span class="bundle-product__available">
-          In stock
-        </span>
+        <span class="bundle-product__available">In stock</span>
       {% else %}
-        <span class="bundle-product__soldout">
-          Sold Out
-        </span>
+        <span class="bundle-product__soldout">Sold Out</span>
       {% endif %}
-
     </div>
 
   </div>
-
-  <script type="application/json" data-product-json>
-    {{ product | json }}
-  </script>
 
 </div>
