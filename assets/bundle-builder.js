@@ -153,3 +153,142 @@ class BundleBuilder {
       cents / 100
     );
   }
+
+  async addBundleToCart() {
+    const items = [];
+
+    this.products.forEach((product) => {
+      const select = product.querySelector(
+        "[data-variant-select]"
+      );
+
+      if (select) {
+        items.push({
+          id: Number(select.value),
+          quantity: 1
+        });
+
+        return;
+      }
+
+      const input = product.querySelector(
+        "[data-variant-id]"
+      );
+
+      if (input) {
+        items.push({
+          id: Number(input.value),
+          quantity: 1
+        });
+      }
+    });
+
+    if (!items.length) {
+      this.showMessage(
+        "Please select at least one product.",
+        "error"
+      );
+      return;
+    }
+
+    this.button.disabled = true;
+    this.button.classList.add("loading");
+
+    const originalText = this.button.textContent;
+    this.button.textContent = "Adding...";
+
+    try {
+      const response = await fetch("/cart/add.js", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+        body: JSON.stringify({
+          items
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          "Unable to add bundle to cart."
+        );
+      }
+
+      await response.json();
+
+      this.showMessage(
+        "Bundle added to cart!",
+        "success"
+      );
+
+      document.dispatchEvent(
+        new CustomEvent("cart:refresh", {
+          bubbles: true
+        })
+      );
+
+      document.dispatchEvent(
+        new CustomEvent("cart:open", {
+          bubbles: true
+        })
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      this.showMessage(
+        error.message,
+        "error"
+      );
+
+    } finally {
+
+      this.button.disabled = false;
+      this.button.classList.remove("loading");
+      this.button.textContent = originalText;
+
+    }
+  }
+
+  showMessage(message, type = "success") {
+
+    if (!this.messageElement) return;
+
+    this.messageElement.hidden = false;
+
+    this.messageElement.textContent = message;
+
+    this.messageElement.className =
+      "bundle-builder__message";
+
+    this.messageElement.classList.add(
+      `bundle-builder__message--${type}`
+    );
+
+    clearTimeout(this.messageTimeout);
+
+    this.messageTimeout = setTimeout(() => {
+
+      this.messageElement.hidden = true;
+
+    }, 4000);
+
+  }
+
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const sections = document.querySelectorAll(
+    ".bundle-builder"
+  );
+
+  sections.forEach((section) => {
+
+    new BundleBuilder(section);
+
+  });
+
+});
