@@ -2,90 +2,52 @@
 <script src="{{ 'bundle-builder.js' | asset_url }}" defer></script>
 
 <section
-  class="bundle-builder color-{{ section.settings.color_scheme }}"
   id="BundleBuilder-{{ section.id }}"
+  class="bundle-builder color-{{ section.settings.color_scheme }}"
   data-section-id="{{ section.id }}"
   data-discount="{{ section.settings.bundle_discount }}"
 >
-
   <div class="page-width">
 
     {% if section.settings.heading != blank %}
-      <div class="bundle-builder__header">
-
-        <h2 class="bundle-builder__title">
-          {{ section.settings.heading }}
-        </h2>
+      <header class="bundle-builder__header">
+        <h2 class="bundle-builder__title">{{ section.settings.heading }}</h2>
 
         {% if section.settings.description != blank %}
           <div class="bundle-builder__description rte">
             {{ section.settings.description }}
           </div>
         {% endif %}
-
-      </div>
+      </header>
     {% endif %}
 
     <div class="bundle-builder__products">
-
       {% for block in section.blocks %}
-
         {% assign bundle_product = block.settings.product %}
 
         {% if bundle_product != blank %}
-
           {% render 'bundle-product-card',
             product: bundle_product,
-            block: block,
-            section: section
+            block: block
           %}
-
         {% endif %}
-
       {% endfor %}
-
     </div>
 
-    <div class="bundle-builder__summary">
-
+    <aside class="bundle-builder__summary">
       <div class="bundle-builder__row">
-        <span>Subtotal</span>
-
-        <span
-          class="bundle-builder__subtotal"
-          data-bundle-subtotal
-        >
-          {{ 0 | money }}
-        </span>
+        <span>{{ 'Subtotal' }}</span>
+        <span data-bundle-subtotal>{{ 0 | money }}</span>
       </div>
 
       <div class="bundle-builder__row">
-
-        <span>
-          Discount
-          ({{ section.settings.bundle_discount }}%)
-        </span>
-
-        <span
-          class="bundle-builder__discount"
-          data-bundle-discount
-        >
-          {{ 0 | money }}
-        </span>
-
+        <span>Discount ({{ section.settings.bundle_discount }}%)</span>
+        <span data-bundle-discount>{{ 0 | money }}</span>
       </div>
 
       <div class="bundle-builder__row bundle-builder__row--total">
-
         <strong>Total</strong>
-
-        <strong
-          class="bundle-builder__total"
-          data-bundle-total
-        >
-          {{ 0 | money }}
-        </strong>
-
+        <strong data-bundle-total>{{ 0 | money }}</strong>
       </div>
 
       <button
@@ -96,16 +58,10 @@
         {{ section.settings.button_label }}
       </button>
 
-      <p
-        class="bundle-builder__message"
-        data-bundle-message
-        hidden
-      ></p>
-
-    </div>
+      <p class="bundle-builder__message" data-bundle-message hidden></p>
+    </aside>
 
   </div>
-
 </section>
 
 {% schema %}
@@ -114,21 +70,18 @@
   "tag": "section",
   "class": "section",
   "settings": [
-
     {
       "type": "text",
       "id": "heading",
       "label": "Heading",
       "default": "Build Your Bundle"
     },
-
     {
       "type": "richtext",
       "id": "description",
       "label": "Description",
-      "default": "<p>Select your favorite products and save instantly.</p>"
+      "default": "<p>Select your favorite products and add them to your cart in one click.</p>"
     },
-
     {
       "type": "range",
       "id": "bundle_discount",
@@ -138,68 +91,42 @@
       "step": 5,
       "default": 10
     },
-
     {
       "type": "text",
       "id": "button_label",
       "label": "Button Label",
       "default": "Add Bundle to Cart"
     },
-
     {
       "type": "color_scheme",
       "id": "color_scheme",
       "label": "Color Scheme",
       "default": "background-1"
     }
-
   ],
-
   "blocks": [
-
     {
       "type": "product",
-
       "name": "Bundle Product",
-
+      "limit": 6,
       "settings": [
-
         {
           "type": "product",
           "id": "product",
-          "label": "Select Product"
+          "label": "Product"
         }
-
       ]
-
     }
-
   ],
-
   "presets": [
-
     {
       "name": "Bundle Builder",
-
       "blocks": [
-
-        {
-          "type": "product"
-        },
-
-        {
-          "type": "product"
-        },
-
-        {
-          "type": "product"
-        }
-
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" }
       ]
-
     }
-
   ]
-
 }
 {% endschema %}
